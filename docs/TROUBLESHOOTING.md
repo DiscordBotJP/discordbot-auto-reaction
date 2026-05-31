@@ -4,48 +4,30 @@
 
 ## 1. Bot が起動しない
 
-### 1.1 `ModuleNotFoundError: No module named 'constants'`
+### 1.1 `RuntimeError: DISCORD_BOT_TOKEN environment variable is required`
 
-原因: `constants.py` がリポジトリ直下にありません。
+原因: `DISCORD_BOT_TOKEN` が設定されていません。
 
-対処:
+ローカルでは `.env`、Railway では Variables に `DISCORD_BOT_TOKEN` を設定してください。
 
-```python
-import os
-from dotenv import load_dotenv
+### 1.2 `RuntimeError: MONGO_URL environment variable is required`
 
-load_dotenv()
+原因: `MONGO_URL` が設定されていません。
 
-TOKEN = os.environ["TOKEN"]
-MONGO_URL = os.environ["MONGO_URL"]
-```
+ローカルでは `.env`、Railway では Variables に `MONGO_URL` を設定してください。
 
-上記内容で `constants.py` を作成してください。
+### 1.3 旧設定 `TOKEN` のみを使っている
 
-### 1.2 `ModuleNotFoundError: No module named 'caches'`
-
-原因: `caches.py` がリポジトリ直下にありません。
+原因: 新規設定では `DISCORD_BOT_TOKEN` を使います。`TOKEN` は旧設定との互換 fallback です。
 
 対処:
 
-```python
-emojis_cache: dict[int, list[str]] = {}
-```
-
-上記内容で `caches.py` を作成してください。
-
-### 1.3 `KeyError: 'TOKEN'`
-
-原因: 環境変数 `TOKEN` が設定されていません。
-
-対処:
-
-- ローカルでは `.env` に `TOKEN=...` を設定する
-- Railway などでは Variables に `TOKEN` を設定する
+- ローカルでは `.env` に `DISCORD_BOT_TOKEN=...` を設定する
+- Railway などでは Variables に `DISCORD_BOT_TOKEN` を設定する
 - `.env` のファイル名が正しいか確認する
 - `load_dotenv()` が呼ばれているか確認する
 
-### 1.4 `KeyError: 'MONGO_URL'`
+### 1.4 `MONGO_URL` の接続失敗
 
 原因: 環境変数 `MONGO_URL` が設定されていません。
 
@@ -76,7 +58,7 @@ pip install -r requirements.txt
 3. Bot が削除・無効化されていないか
 4. ホスティング環境のプロセスが落ちていないか
 5. `python main.py` が実行されているか
-6. Python バージョンが 3.11 系か
+6. Python バージョンが 3.14.5 か
 
 ## 3. Bot メンションで設定できない
 
@@ -255,7 +237,7 @@ MongoDB を直接編集した場合は、稼働中 Bot のメモリキャッシ�
 1. Bot がオンラインか
 2. `python main.py` の起動ログにエラーがないか
 3. `.env` / Variables に `TOKEN` と `MONGO_URL` があるか
-4. `constants.py` と `caches.py` があるか
+4. `DISCORD_BOT_TOKEN` と `MONGO_URL` が設定されているか
 5. Message Content Intent が有効か
 6. Bot 招待 URL に `applications.commands` が含まれているか
 7. 対象チャンネルで Bot に Add Reactions があるか

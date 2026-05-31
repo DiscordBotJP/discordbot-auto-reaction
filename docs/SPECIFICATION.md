@@ -35,8 +35,8 @@ Discord サーバー内のチャンネルごとに自動リアクション設定
 | 項目 | 内容 |
 | --- | --- |
 | 言語 | Python |
-| Python バージョン | 3.11.8 |
-| Discord ライブラリ | discord.py |
+| Python バージョン | 3.14.5 |
+| Discord ライブラリ | discord.py 2.7.1 |
 | Bot 実装 | `commands.Bot` 継承の `MyBot` |
 | 永続化 | MongoDB |
 | MongoDB クライアント | motor |
@@ -44,6 +44,7 @@ Discord サーバー内のチャンネルごとに自動リアクション設定
 | 補助ライブラリ | Daug |
 | 起動ファイル | `main.py` |
 | 起動コマンド | `python main.py` |
+| 主な実行環境 | Railway / Railpack |
 
 ## 4. 起動仕様
 
@@ -61,6 +62,8 @@ Bot は `discord.Intents.all()` を使用する。Bot メンションによる�
 ```text
 .
 ├── main.py
+├── railway.json
+├── .python-version
 ├── requirements.txt
 ├── runtime.txt
 ├── Procfile
@@ -73,12 +76,7 @@ Bot は `discord.Intents.all()` を使用する。Bot メンションによる�
     └── database.py
 ```
 
-導入時には、現行実装で import されている次のローカル設定ファイルも必要である。
-
-```text
-constants.py
-caches.py
-```
+設定読み込みは `constants/`、プロセスメモリキャッシュは `caches/` package が担当する。
 
 ## 6. Extension 仕様
 
@@ -247,7 +245,7 @@ API リクエスト数は概ね `対象メッセージ数 × 設定絵文字数`
 
 ## 16. キャッシュ仕様
 
-`caches.py` の `emojis_cache` をメモリキャッシュとして使用する。
+`caches` package の `emojis_cache` をメモリキャッシュとして使用する。
 
 推奨定義は次のとおり。
 
@@ -308,11 +306,10 @@ emojis_cache: dict[int, list[str]] = {}
 - 履歴補完の進捗表示はない
 - 複数プロセス起動時のキャッシュ同期はない
 - DB を直接編集しても稼働中 Bot には即時反映されない
-- `constants.py` と `caches.py` はリポジトリ外で用意する必要がある
+- 必須環境変数は `DISCORD_BOT_TOKEN` と `MONGO_URL`
 
 ## 21. 推奨改善
 
-- `constants.py.example` と `caches.py` を追加する
 - Intents を必要最小限に絞る
 - MongoDB の `channel_id` に unique index を設定する
 - 履歴補完に確認 UI、件数上限、進捗表示を追加する

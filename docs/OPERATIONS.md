@@ -203,7 +203,7 @@ Railway などの PaaS では、環境変数の変更や再デプロイにより
 - MongoDB ユーザー名
 - MongoDB パスワード
 
-`.env` は `.gitignore` に含まれていますが、`constants.py` に直接 Secret を書く運用は避けてください。
+`.env` は `.gitignore` に含まれています。Secret をコードやドキュメント本文へ直接書く運用は避けてください。
 
 推奨は `.env` またはホスティングサービスの環境変数から読み込む運用です。
 
