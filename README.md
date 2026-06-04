@@ -18,6 +18,7 @@ Discord チャンネルごとに設定した絵文字を、投稿されたメッ
 
 | ドキュメント | 内容 |
 | --- | --- |
+| [アーキテクチャ](docs/ARCHITECTURE.md) | 人間と AI エージェント向けの構成、責務、変更時の注意点 |
 | [仕様書](docs/SPECIFICATION.md) | 機能、権限、データ構造、処理フロー、制約を網羅した仕様書 |
 | [導入手順](docs/SETUP.md) | ローカル環境、Discord Developer Portal、MongoDB、起動手順 |
 | [運用手順](docs/OPERATIONS.md) | 日常運用、設定変更、補完実行、バックアップ、リリース手順 |
@@ -55,19 +56,22 @@ Bot ユーザーは集計対象から除外されます。
 | 項目 | 内容 |
 | --- | --- |
 | 言語 | Python |
-| Python バージョン | 3.11.8 |
-| Discord ライブラリ | discord.py |
+| Python バージョン | 3.14.5 |
+| Discord ライブラリ | discord.py 2.7.1 |
 | 永続化 | MongoDB |
 | MongoDB クライアント | motor |
 | 絵文字抽出 | emoji / re |
 | 補助ライブラリ | Daug |
 | 起動ファイル | `main.py` |
+| 実行環境 | Railway / Railpack |
 
 ## ディレクトリ構成
 
 ```text
 .
 ├── main.py
+├── railway.json
+├── .python-version
 ├── requirements.txt
 ├── runtime.txt
 ├── Procfile
@@ -263,11 +267,11 @@ MongoDB の `auto_reaction` データベースに、チャンネル単位の設�
 `Procfile` は次の内容です。
 
 ```Procfile
-web: python main.py
+worker: python main.py
 ```
 
-Railway、Heroku 系、その他の常駐プロセス実行環境で起動できます。
-この Bot は HTTP サーバーを提供しないため、環境によっては `web` ではなく `worker` プロセスとして扱う構成も検討してください。
+Railway では `railway.json` の Railpack 設定と `python main.py` の start command を使用します。
+この Bot は HTTP サーバーを提供しないため、公開ドメインや HTTP healthcheck は不要です。
 
 詳細は [導入手順](docs/SETUP.md) と [運用手順](docs/OPERATIONS.md) を参照してください。
 

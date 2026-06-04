@@ -6,13 +6,13 @@
 
 以下を用意してください。
 
-- Python 3.11 系
+- Python 3.14.5
 - Discord Bot Token
 - MongoDB 接続 URL
 - Bot を招待できる Discord サーバー
 - Bot に必要な権限を付与できる管理権限
 
-このリポジトリでは `runtime.txt` に `python-3.11.8` が指定されています。
+このリポジトリでは `.python-version` に `3.14.5`、`runtime.txt` に `python-3.14.5` が指定されています。
 
 ## 2. Discord Developer Portal の設定
 
@@ -77,7 +77,7 @@ Bot は次のデータベース・コレクションを使用します。
 ## 4. リポジトリを準備する
 
 ```bash
-git clone https://github.com/DiscordBotPortalJP/discordbot-auto-reaction.git
+git clone https://github.com/DiscordBotJP/discordbot-auto-reaction.git
 cd discordbot-auto-reaction
 ```
 
@@ -107,9 +107,9 @@ pip install -r requirements.txt
 
 ```text
 emoji
-discord.py
-python-dotenv
-motor
+discord.py==2.7.1
+python-dotenv==1.2.2
+motor==3.7.1
 Daug==2023.12.9.1
 ```
 
@@ -118,37 +118,17 @@ Daug==2023.12.9.1
 リポジトリ直下に `.env` を作成します。
 
 ```env
-TOKEN=YOUR_DISCORD_BOT_TOKEN
+DISCORD_BOT_TOKEN=YOUR_DISCORD_BOT_TOKEN
 MONGO_URL=YOUR_MONGODB_CONNECTION_URL
+OPS_LOG_HUB_URL=
+OPS_LOG_HUB_KEY=
+OPS_LOG_PROJECT=discordbot-auto-reaction
+OPS_LOG_ENVIRONMENT=development
 ```
 
 `.env` は `.gitignore` により除外されています。誤ってコミットしないでください。
 
-## 8. `constants.py` を作成する
-
-現行実装では `constants.py` が import されますが、リポジトリには含まれていません。
-リポジトリ直下に次の内容で作成してください。
-
-```python
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-TOKEN = os.environ["TOKEN"]
-MONGO_URL = os.environ["MONGO_URL"]
-```
-
-## 9. `caches.py` を作成する
-
-現行実装では `caches.py` が import されますが、リポジトリには含まれていません。
-リポジトリ直下に次の内容で作成してください。
-
-```python
-emojis_cache: dict[int, list[str]] = {}
-```
-
-## 10. 起動する
+## 8. 起動する
 
 ```bash
 python main.py
@@ -162,7 +142,7 @@ python main.py
 4. MongoDB からリアクション設定を読み込み
 5. メモリキャッシュへ設定を展開
 
-## 11. Bot をサーバーへ招待する
+## 9. Bot をサーバーへ招待する
 
 OAuth2 URL Generator で生成した URL から、対象サーバーへ Bot を招待します。
 
@@ -176,9 +156,9 @@ OAuth2 URL Generator で生成した URL から、対象サーバーへ Bot を�
 - 埋め込みリンク
 - アプリケーションコマンドを使用
 
-## 12. 動作確認
+## 10. 動作確認
 
-### 12.1 自動リアクションを設定する
+### 10.1 自動リアクションを設定する
 
 対象チャンネルで、チャンネル管理権限を持つユーザーが次のように投稿します。
 
@@ -188,12 +168,12 @@ OAuth2 URL Generator で生成した URL から、対象サーバーへ Bot を�
 
 成功すると、Bot が `自動リアクション設定を追加しました` と返信します。
 
-### 12.2 投稿にリアクションが付くか確認する
+### 10.2 投稿にリアクションが付くか確認する
 
 同じチャンネルに任意のメッセージを投稿します。
 設定した絵文字が自動で付与されれば成功です。
 
-### 12.3 設定確認を実行する
+### 10.3 設定確認を実行する
 
 ```text
 /リアクション設定確認
@@ -201,7 +181,7 @@ OAuth2 URL Generator で生成した URL から、対象サーバーへ Bot を�
 
 設定済み絵文字が Embed で表示されれば成功です。
 
-### 12.4 設定を解除する
+### 10.4 設定を解除する
 
 ```text
 @BotName
@@ -209,22 +189,24 @@ OAuth2 URL Generator で生成した URL から、対象サーバーへ Bot を�
 
 成功すると、Bot が `自動リアクション設定を解除しました` と返信します。
 
-## 13. Railway での起動例
+## 11. Railway での起動例
 
-このリポジトリには `Procfile` があり、内容は次のとおりです。
+このリポジトリには `railway.json` と `Procfile` があります。Railway では Railpack builder と `python main.py` の start command を使います。
 
 ```Procfile
-web: python main.py
+worker: python main.py
 ```
 
 Railway で運用する場合は、プロジェクトの Variables に次を設定します。
 
 | 変数名 | 内容 |
 | --- | --- |
-| `TOKEN` | Discord Bot Token |
+| `DISCORD_BOT_TOKEN` | Discord Bot Token |
 | `MONGO_URL` | MongoDB 接続 URL |
+| `OPS_LOG_HUB_URL` | 任意。ops-log-hub ingest URL |
+| `OPS_LOG_HUB_KEY` | 任意。ops-log-hub ingest key |
 
-ただし、この Bot は HTTP サーバーを提供しません。プラットフォームの構成によっては `web` ではなく `worker` プロセスとして扱う方が適切です。
+この Bot は HTTP サーバーを提供しません。公開ドメインや HTTP healthcheck は不要です。
 
 ## 14. セットアップ後の確認項目
 
@@ -240,8 +222,8 @@ Railway で運用する場合は、プロジェクトの Variables に次を設�
 
 | 症状 | 主な原因 |
 | --- | --- |
-| `ModuleNotFoundError: No module named 'constants'` | `constants.py` が未作成 |
-| `ModuleNotFoundError: No module named 'caches'` | `caches.py` が未作成 |
+| `RuntimeError: DISCORD_BOT_TOKEN environment variable is required` | `DISCORD_BOT_TOKEN` が未設定 |
+| `RuntimeError: MONGO_URL environment variable is required` | `MONGO_URL` が未設定 |
 | Bot がメンション設定に反応しない | Message Content Intent が無効、またはチャンネル管理権限がない |
 | Slash Command が出ない | `applications.commands` Scope なし、同期直後で反映待ち、Bot 再招待が必要 |
 | リアクションが付かない | Bot に Add Reactions / Use External Emojis / Read Message History がない |
