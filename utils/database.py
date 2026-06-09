@@ -14,6 +14,17 @@ async def cache_emojis() -> None:
         emojis_cache[channel_id] = emojis
 
 
+async def ensure_reaction_check_indexes() -> None:
+    await database.reaction_checks.create_index([
+        ('requested_by_user_id', 1),
+        ('checked_at', -1),
+    ])
+    await database.reaction_checks.create_index([
+        ('message_id', 1),
+        ('requested_by_user_id', 1),
+    ])
+
+
 def get_emojis(channel_id: int) -> dict | None:
     return emojis_cache.get(channel_id)
 
@@ -32,3 +43,8 @@ async def delete_emojis(channel_id):
     result = await database.emojis.delete_one({'channel_id': channel_id})
     if result.deleted_count > 0:
         emojis_cache.pop(channel_id, None)
+
+
+async def save_reaction_check(reaction_check: dict) -> str:
+    result = await database.reaction_checks.insert_one(reaction_check)
+    return str(result.inserted_id)

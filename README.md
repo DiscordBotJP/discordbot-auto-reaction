@@ -47,7 +47,7 @@ Discord チャンネルごとに設定した絵文字を、投稿されたメッ
 
 ### 4. リアクション内訳の確認
 
-メッセージ右クリックメニューの `リアクション確認` から、自分のメッセージに付いたリアクションの内訳を DM で受け取れます。
+メッセージ右クリックメニューの `リアクション確認` から、自分のメッセージに付いたリアクションの内訳を dashboard に保存し、DM でも受け取れます。
 
 Bot ユーザーは集計対象から除外されます。
 
@@ -230,7 +230,7 @@ ops-log-hub を設定すると、以下のイベントを送信します。
 ### 自分のメッセージのリアクション内訳を確認する
 
 自分が投稿したメッセージを右クリックし、アプリメニューから `リアクション確認` を実行します。
-Bot が DM にリアクション別のユーザー一覧を送信します。
+Bot が MongoDB に確認結果を保存し、DM にもリアクション別のユーザー一覧を送信します。
 
 ## コマンド一覧
 
@@ -241,11 +241,13 @@ Bot が DM にリアクション別のユーザー一覧を送信します。
 | Slash Command | `/リアクション設定確認` | 現在のチャンネルの設定を確認 | 管理者 |
 | Slash Command | `/リアクション補完` | 現在のチャンネルの全履歴へ補完 | 管理者 |
 | Message Context Menu | `リアクション補完` | 選択した 1 件のメッセージへ補完 | 管理者 |
-| Message Context Menu | `リアクション確認` | 自分のメッセージのリアクション内訳を DM で確認 | 投稿者本人 |
+| Message Context Menu | `リアクション確認` | 自分のメッセージのリアクション内訳を dashboard / DM で確認 | 投稿者本人 |
 
 ## データ仕様
 
-MongoDB の `auto_reaction` データベースに、チャンネル単位の設定を保存します。
+MongoDB の `auto_reaction` データベースに、チャンネル単位の設定とリアクション確認結果を保存します。
+
+### 自動リアクション設定: `emojis`
 
 ```json
 {
@@ -258,6 +260,38 @@ MongoDB の `auto_reaction` データベースに、チャンネル単位の設�
 | --- | --- | --- |
 | `channel_id` | integer | Discord チャンネル ID |
 | `emojis` | string[] | 自動付与する絵文字の配列 |
+
+### リアクション確認結果: `reaction_checks`
+
+```json
+{
+  "checked_at": "2026-06-09T12:00:00+09:00",
+  "requested_by_user_id": "123456789012345678",
+  "guild_id": "123456789012345678",
+  "guild_name": "Example Server",
+  "channel_id": "123456789012345678",
+  "channel_name": "general",
+  "message_id": "123456789012345678",
+  "message_jump_url": "https://discord.com/channels/...",
+  "reaction_total": 3,
+  "reaction_kind_count": 2,
+  "reactions": [
+    {
+      "emoji": "👍",
+      "count": 2,
+      "users": [
+        {
+          "user_id": "123456789012345678",
+          "name": "user_name",
+          "display_name": "表示名"
+        }
+      ]
+    }
+  ]
+}
+```
+
+dashboard の `/user` は、`requested_by_user_id` がログイン中 Discord ユーザー ID と一致する `reaction_checks` だけを表示します。
 
 起動時に MongoDB から全設定を読み込み、メモリキャッシュに展開します。
 設定追加・更新・削除時は MongoDB とメモリキャッシュの両方を更新します。

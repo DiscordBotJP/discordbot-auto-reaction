@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from utils.database import cache_emojis
+from utils.database import ensure_reaction_check_indexes
 from constants import TOKEN
 from utils.ops_log import emit_command_error
 from utils.ops_log import emit_exception_event
@@ -27,6 +28,7 @@ class MyBot(commands.Bot):
                 await self.load_extension(f'extensions.{extension}')
             await self.tree.sync()
             await cache_emojis()
+            await ensure_reaction_check_indexes()
         except Exception as error:
             await emit_exception_event(
                 'config_error',

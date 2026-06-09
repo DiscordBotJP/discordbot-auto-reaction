@@ -194,12 +194,13 @@ API リクエスト数は概ね `対象メッセージ数 × 設定絵文字数`
 処理手順は次のとおり。
 
 1. 対象メッセージの投稿者が実行者本人か確認する
-2. `DMにリアクションの内訳を送信します` を ephemeral で返す
+2. `リアクション確認結果を保存し、DMにも送信します` を ephemeral で返す
 3. `message.reactions` を走査する
 4. Bot ユーザーを除外してリアクションユーザーを取得する
 5. `user.name` で昇順ソートする
-6. リアクションごとに Embed を作成する
-7. 実行者の DM へ送信する
+6. `auto_reaction.reaction_checks` に確認結果を保存する
+7. リアクションごとに Embed を作成する
+8. 実行者の DM へ送信する
 
 10 人以下のリアクションは 1 つの Embed にまとめる。11 人以上の場合は、1 Embed あたり最大 25 人、1 回の DM 送信あたり最大 4 Embed に分割して送信する。
 
@@ -242,6 +243,46 @@ API リクエスト数は概ね `対象メッセージ数 × 設定絵文字数`
 | --- | --- | --- |
 | `channel_id` | integer | Discord チャンネル ID |
 | `emojis` | string[] | 自動付与する絵文字 |
+
+### 15.4 リアクション確認結果
+
+`リアクション確認` の実行結果は `auto_reaction.reaction_checks` に保存する。
+
+```json
+{
+  "checked_at": "2026-06-09T12:00:00+09:00",
+  "requested_by_user_id": "123456789012345678",
+  "requested_by": {
+    "user_id": "123456789012345678",
+    "name": "user_name",
+    "display_name": "表示名"
+  },
+  "message_author_id": "123456789012345678",
+  "guild_id": "123456789012345678",
+  "guild_name": "Example Server",
+  "channel_id": "123456789012345678",
+  "channel_name": "general",
+  "message_id": "123456789012345678",
+  "message_jump_url": "https://discord.com/channels/...",
+  "reaction_total": 3,
+  "reaction_kind_count": 2,
+  "reactions": [
+    {
+      "emoji": "👍",
+      "count": 2,
+      "users": [
+        {
+          "user_id": "123456789012345678",
+          "name": "user_name",
+          "display_name": "表示名"
+        }
+      ]
+    }
+  ]
+}
+```
+
+dashboard は `requested_by_user_id` でログイン中ユーザー本人の履歴だけを取得する。
 
 ## 16. キャッシュ仕様
 
