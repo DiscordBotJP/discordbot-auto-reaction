@@ -1,8 +1,8 @@
-import motor.motor_asyncio
+from cloudflare_storage import create_client
 from caches import emojis_cache
-from constants import MONGO_URL
+from constants import DATABASE_PROVIDER, MONGO_URL
 
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URL)
+client = create_client(MONGO_URL)
 database = client.auto_reaction
 # database_emojis = database.emojis
 
@@ -15,6 +15,9 @@ async def cache_emojis() -> None:
 
 
 async def ensure_reaction_check_indexes() -> None:
+    # D1 indexes are deployed with the data-service schema, not created by Bots.
+    if DATABASE_PROVIDER == 'd1':
+        return
     await database.reaction_checks.create_index([
         ('requested_by_user_id', 1),
         ('checked_at', -1),

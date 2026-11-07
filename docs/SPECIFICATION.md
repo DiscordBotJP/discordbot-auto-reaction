@@ -221,7 +221,7 @@ API リクエスト数は概ね `対象メッセージ数 × 設定絵文字数`
 
 ### 15.1 接続
 
-`constants.MONGO_URL` を使用して `motor.motor_asyncio.AsyncIOMotorClient` を作成する。
+`cloudflare_storage.create_client(constants.MONGO_URL)`が`DATABASE_PROVIDER`で保存層を選ぶ。既定の`mongodb`はMotorを使用し、`d1`は`DATA_SERVICE_URL`と`DATA_SERVICE_TOKEN`を必須としてWorker APIへ接続する。詳細は[保存層の運用](STORAGE.md)。
 
 ### 15.2 データベース・コレクション
 
@@ -347,7 +347,7 @@ emojis_cache: dict[int, list[str]] = {}
 - 履歴補完の進捗表示はない
 - 複数プロセス起動時のキャッシュ同期はない
 - DB を直接編集しても稼働中 Bot には即時反映されない
-- 必須環境変数は `DISCORD_BOT_TOKEN` と `MONGO_URL`
+- 必須環境変数は`DISCORD_BOT_TOKEN`と、選択した保存層の接続設定（MongoDB: `MONGO_URL`、D1: `DATA_SERVICE_URL` / `DATA_SERVICE_TOKEN`）
 
 ## 21. 推奨改善
 

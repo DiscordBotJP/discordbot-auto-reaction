@@ -1,5 +1,7 @@
 # トラブルシューティング
 
+> 保存層は`DATABASE_PROVIDER`で選択します。以下の`MONGO_URL`設定・MongoDB障害対応は`mongodb`モード向けです。D1モードの必須変数と切り戻し条件は[保存層の運用](STORAGE.md)を参照してください。D1の401/403はBot専用tokenと対象namespaceを、タイムアウトはWorkerの可用性を確認します。失敗時にMongoDBへ自動fallbackしません。
+
 `discordbot-auto-reaction` の導入・運用時に発生しやすい問題と確認手順をまとめます。
 
 ## 1. Bot が起動しない

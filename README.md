@@ -147,7 +147,9 @@ pip install -r requirements.txt
 
 ```env
 DISCORD_BOT_TOKEN=
+DATABASE_PROVIDER=mongodb
 MONGO_URL=
+# D1の場合: DATABASE_PROVIDER=d1 + DATA_SERVICE_URL + DATA_SERVICE_TOKEN
 OPS_LOG_HUB_URL=
 OPS_LOG_HUB_KEY=
 OPS_LOG_PROJECT=discordbot-auto-reaction
@@ -169,7 +171,7 @@ python main.py
 1. `extensions.auto_reaction` を読み込む
 2. `extensions.reaction_listup` を読み込む
 3. アプリケーションコマンドを Discord に同期する
-4. MongoDB からリアクション設定を読み込み、メモリキャッシュに反映する
+4. 選択した保存層からリアクション設定を読み込み、メモリキャッシュに反映する
 5. ops-log-hub 設定がある場合、起動完了イベントを送信する
 
 ## 運用ログ
@@ -319,3 +321,7 @@ Railway では `railway.json` の Railpack 設定と `python main.py` の start 
 ## ライセンス
 
 MIT License
+
+## 永続化の設定
+
+`DATABASE_PROVIDER=mongodb`（既定）と`d1`を選べます。D1への移行、必須変数、切り戻し条件は[保存層の運用](docs/STORAGE.md)を参照してください。
